@@ -38,3 +38,5 @@ node_modules
 
 # API Docs
 docs/api
+
+*.zip
