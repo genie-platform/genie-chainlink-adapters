@@ -2,7 +2,7 @@
   "name": "genie-chainlink-adapters",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "node ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
