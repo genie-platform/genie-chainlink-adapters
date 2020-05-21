@@ -1,8 +1,12 @@
 # Instructions
 
+- Install dependencies:
+```
+npm install
+```
 - Run the app.js file:
 ```
-node app.js
+node src/app.js
 ```
 - Call the adapter with `curl`:
 ```
