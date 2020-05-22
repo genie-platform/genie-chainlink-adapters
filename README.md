@@ -6,7 +6,7 @@ npm install
 ```
 - Run the app.js file:
 ```
-node src/app.js
+node app.js
 ```
 - Call the adapter with `curl`:
 ```

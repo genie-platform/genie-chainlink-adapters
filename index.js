@@ -43,8 +43,8 @@ const poeAdapter = async (body, res) => {
   const poolAddress = pool.substring(0, 42)
 
   // getting list of users that joined the pool
-  const query = `query geDeposits($funding: String!) {
-    deposits(funding: $funding) {
+  const query = `query geDeposits($pool: String!) {
+    deposits(pool: $pool) {
       sender
       amount
       userId
@@ -52,11 +52,11 @@ const poeAdapter = async (body, res) => {
   }`
 
   const variables = {
-    funding: poolAddress
+    pool: poolAddress
   }
 
   const { deposits } = await request(
-    'https://api.thegraph.com/subgraphs/name/genie-platform/genie-graph-v2',
+    'https://api.thegraph.com/subgraphs/name/genie-platform/genie-graph',
     query,
     variables
   )
