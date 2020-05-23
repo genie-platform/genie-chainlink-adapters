@@ -16,24 +16,25 @@ const getAccountCharacters = async accountName => {
     },
     data: `accountName=${accountName}`
   }
-
-  try {
-    const response = await axios(options)
-    return response.data
-  } catch (error) {
-    return error.toJSON()
-  }
+  const response = await axios(options)
+  return response.data
 }
 
 const getAccountCharacter = async (accountName, genieToken) => {
-  const characters = await getAccountCharacters(accountName)
-  // console.log(characters)
-  for (const character of characters) {
-    // console.log(character)
-    if (character.name.endsWith(genieToken)) {
-      return character
+  try {
+    const characters = await getAccountCharacters(accountName)
+    // console.log({ characters })
+    // console.log(characters)
+    for (const character of characters) {
+      // console.log(character)
+      if (character.name.endsWith(genieToken)) {
+        return character
+      }
     }
+  } catch (error) {
+    console.error(error)
   }
+
 }
 
 // Path of Exile adapter
@@ -43,39 +44,41 @@ const poeAdapter = async (body, res) => {
   const poolAddress = pool.substring(0, 42)
 
   // getting list of users that joined the pool
-  const query = `query geDeposits($pool: String!) {
-    deposits(pool: $pool) {
-      sender
-      amount
+  const query = `query getAccounts($poolAddress: String!) {
+    accountPools(where: {poolAddress: $poolAddress}) {
       userId
+      account {
+        address
+      }
     }
   }`
 
   const variables = {
-    pool: poolAddress
+    poolAddress
   }
 
-  const { deposits } = await request(
-    'https://api.thegraph.com/subgraphs/name/genie-platform/genie-graph',
+  console.log(poolAddress)
+  const { accountPools } = await request(
+    'https://api.thegraph.com/subgraphs/name/genie-platform/genie-graph-v2',
     query,
     variables
   )
-  console.log({ deposits })
+  console.log({ accountPools })
 
   // for each joined user
-  for (const deposit of deposits) {
-    // const senderBytes = '0x' + deposit.sender.slice(2).padStart(64, '0')
-    // console.log('0x' + deposit.sender.slice(2).padStart(64, '0'))
-    const [accountName, genieToken] = deposit.userId.split('#')
+  for (const accountPool of accountPools) {
+    const [accountName, genieToken] = accountPool.userId.split('#')
+    if (!accountName) {
+      continue
+    }
 
     // get the character from poe API
     const character = await getAccountCharacter(accountName, genieToken)
-    // console.log({ character })
+    console.log(character && character.level)
 
     // the goal level reached -> we got a winner
     if (character && character.level >= level) {
-      console.log({ character })
-      const winnerAccount = '0x' + deposit.sender.slice(2).padStart(64, '0')
+      const winnerAccount = '0x' + accountPool.account.address.slice(2).padStart(64, '0')
 
       const response = {
         jobRunID: body.id,
